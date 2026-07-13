@@ -672,6 +672,9 @@ class Level extends Sandbox {
 
     setTimeout(function() {
       command.finishWith(deferred);
+      // don't strand the learner in the bare sandbox -- bring them right
+      // back to the level selection screen so they can pick what's next
+      Main.getEventBaton().trigger('commandSubmitted', 'levels');
     }, this.getAnimationTime());
 
     // we need to fade in the sandbox
