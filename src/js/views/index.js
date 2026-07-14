@@ -76,7 +76,7 @@ class PositiveNegativeBase extends BaseView {
 }
 
 class ContainedBase extends BaseView {
-  getAnimationTime() { return 350; }
+  getAnimationTime() { return 450; }
 
   show() {
     this.container.show();
@@ -223,7 +223,7 @@ class ModalView {
     return this.$el.find(selector);
   }
 
-  getAnimationTime() { return 350; }
+  getAnimationTime() { return 450; }
 
   render() {
     this.$el.html(this.template({}));
@@ -428,7 +428,7 @@ class ConfirmCancelTerminal {
     this.buttonDefer.reject();
   }
 
-  getAnimationTime() { return 350; }
+  getAnimationTime() { return 450; }
 
   show() {
     this.modalAlert.show();
@@ -604,7 +604,7 @@ class CanvasTerminalHolder extends BaseView {
     }
   }
 
-  getAnimationTime() { return 350; }
+  getAnimationTime() { return 450; }
 
   onClick() {
     this.die();
