@@ -132,7 +132,7 @@ exports.level = {
             "markdowns": [
               "*Note: Since Git version 2.23 you can use `git switch` instead of `git checkout` to move between branches. ",
               "`git checkout` is a bit overloaded (it does a bunch of different things depending on the arguments), so `switch` was created to do just one job well. ",
-              "We'll prefer `git switch` from here on -- but don't be surprised to see `git checkout` all over the internet and older tutorials, because it still works exactly the same for switching branches. ",
+              "We'll prefer `git switch` from here on, but don't be surprised to see `git checkout` all over the internet and older tutorials, because it still works exactly the same for switching branches. ",
               "You can <a href=\"https://git-scm.com/docs/git-switch\" target=\"_blank\">learn more here</a>.* "
             ]
           }

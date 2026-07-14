@@ -388,7 +388,7 @@ exports.strings = {
   },
   "git-merge-unmerged-paths": {
     "__desc__": "shown when committing/continuing a merge with conflicts still unresolved",
-    "en_US": "error: you have unresolved conflicts -- mark them resolved with \"git add <file>\" first."
+    "en_US": "error: you have unresolved conflicts. Mark them resolved with \"git add <file>\" first."
   },
   "git-merge-continue-nomerge": {
     "__desc__": "shown when git merge --continue is run with no merge in progress",
@@ -400,7 +400,7 @@ exports.strings = {
   },
   "git-rebase-conflict": {
     "__desc__": "summary line shown when a rebase stops with conflicts",
-    "en_US": "error: could not apply your changes -- resolve the conflicts, then run \"git rebase --continue\"."
+    "en_US": "error: could not apply your changes. Resolve the conflicts, then run \"git rebase --continue\"."
   },
   "git-rebase-nomerge": {
     "__desc__": "shown when git rebase --continue / --abort is run with no rebase in progress",

@@ -19,7 +19,7 @@ exports.level = {
               "",
               "Picture it: you're halfway through editing `feature.js`... and realize you're on `main`, where this work does *not* belong. You can't commit half-finished code, but you don't want to lose it either.",
               "",
-              "Enter `git stash`. It shelves your uncommitted changes and hands you back a clean working directory -- like nothing ever happened. Your work waits safely on a \"stash stack\" until you're ready for it again."
+              "Enter `git stash`. It shelves your uncommitted changes and hands you back a clean working directory, like nothing ever happened. Your work waits safely on a \"stash stack\" until you're ready for it again."
             ]
           }
         },
@@ -43,7 +43,7 @@ exports.level = {
           "type": "ModalAlert",
           "options": {
             "markdowns": [
-              "Do it for real. Your edit to `feature.js` is stranded on `main` by mistake -- move it to a new `feature` branch and commit it there:",
+              "Do it for real. Your edit to `feature.js` is stranded on `main` by mistake, so move it to a new `feature` branch and commit it there:",
               "",
               "* `git stash`",
               "* `git switch -c feature`",

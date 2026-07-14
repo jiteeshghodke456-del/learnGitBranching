@@ -7,7 +7,7 @@ exports.level = {
     "en_US": "Conflicts While Rebasing"
   },
   "hint": {
-    "en_US": "`git rebase main` conflicts -- then `git add app.js` and `git rebase --continue` (the same verbs as a merge; `git rebase --abort` bails out)."
+    "en_US": "`git rebase main` conflicts, then `git add app.js` and `git rebase --continue` (the same verbs as a merge; `git rebase --abort` bails out)."
   },
   "startDialog": {
     "en_US": {
@@ -28,7 +28,7 @@ exports.level = {
           "type": "GitDemonstrationView",
           "options": {
             "beforeMarkdowns": [
-              "As a warm-up, here's a normal, conflict-free rebase -- replaying `feature` on top of the latest `main`:"
+              "As a warm-up, here's a normal, conflict-free rebase that replays `feature` on top of the latest `main`:"
             ],
             "afterMarkdowns": [
               "Clean and linear. But when a replayed commit touches the same lines `main` changed, git has to stop and ask you to sort it out..."
@@ -41,7 +41,7 @@ exports.level = {
           "type": "ModalAlert",
           "options": {
             "markdowns": [
-              "`git rebase` replays your commits one at a time onto the new base. If a replay collides with someone else's change, git pauses -- exactly like a merge conflict.",
+              "`git rebase` replays your commits one at a time onto the new base. If a replay collides with someone else's change, git pauses, exactly like a merge conflict.",
               "",
               "The resolution rhythm is identical; only the command name changes:",
               "",
@@ -60,9 +60,9 @@ exports.level = {
             "markdowns": [
               "Your `feature` branch is built on an old `main`, and `main` has since changed `app.js`. Rebase onto the latest `main`, settle the clash, and finish:",
               "",
-              "* `git rebase main` -- this conflicts",
-              "* `git add app.js` -- mark it resolved",
-              "* `git rebase --continue` -- replay your work on top"
+              "* `git rebase main`: this conflicts",
+              "* `git add app.js`: mark it resolved",
+              "* `git rebase --continue`: replay your work on top"
             ]
           }
         }

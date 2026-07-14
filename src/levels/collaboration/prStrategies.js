@@ -3,7 +3,7 @@ exports.level = {
   "solutionCommand": "git merge --squash feature",
   "startTree": '{"branches":{"main":{"target":"C2","id":"main"},"feature":{"target":"C4","id":"feature"}},"commits":{"C0":{"parents":[],"id":"C0","rootCommit":true},"C1":{"parents":["C0"],"id":"C1"},"C2":{"parents":["C1"],"id":"C2"},"C3":{"parents":["C1"],"id":"C3"},"C4":{"parents":["C3"],"id":"C4"}},"HEAD":{"target":"main","id":"HEAD"}}',
   "name": {
-    "en_US": "Pull Requests -- Three Ways to Merge"
+    "en_US": "Pull Requests: Three Ways to Merge"
   },
   "hint": {
     "en_US": "Collapse all of `feature` into one clean commit on `main` with `git merge --squash feature`."
@@ -17,7 +17,7 @@ exports.level = {
             "markdowns": [
               "## Pull Requests: Three Ways to Merge",
               "",
-              "On a real team you rarely `git push` straight to `main`. Instead you open a **Pull Request** -- a friendly \"please review and merge my branch\" -- and once it's approved, the hosting site (GitHub, GitLab, and friends) merges it for you.",
+              "On a real team you rarely `git push` straight to `main`. Instead you open a **Pull Request** (a friendly \"please review and merge my branch\"), and once it's approved, the hosting site (GitHub, GitLab, and friends) merges it for you.",
               "",
               "But *how* it merges is your choice, and each way shapes history a little differently. Let's meet the three buttons you'll see on almost every PR."
             ]
@@ -27,10 +27,10 @@ exports.level = {
           "type": "GitDemonstrationView",
           "options": {
             "beforeMarkdowns": [
-              "**Option 1: Create a merge commit.** This is plain `git merge --no-ff` -- it ties your branch into `main` with a dedicated merge commit and keeps every commit exactly as it happened."
+              "**Option 1: Create a merge commit.** This is plain `git merge --no-ff`, and it ties your branch into `main` with a dedicated merge commit and keeps every commit exactly as it happened."
             ],
             "afterMarkdowns": [
-              "Two parents on that new commit, and your whole branch history is preserved. Honest and complete -- if a little noisy over time."
+              "Two parents on that new commit, and your whole branch history is preserved. Honest and complete, if a little noisy over time."
             ],
             "command": "git merge --no-ff feature",
             "beforeCommand": "git switch -c feature; git commit; git commit; git switch main; git commit"
@@ -55,10 +55,10 @@ exports.level = {
           "type": "GitDemonstrationView",
           "options": {
             "beforeMarkdowns": [
-              "**Option 3: Rebase and merge.** Replay your commits on top of the latest `main`, then fast-forward -- a perfectly linear history with no merge commit."
+              "**Option 3: Rebase and merge.** Replay your commits on top of the latest `main`, then fast-forward, for a perfectly linear history with no merge commit."
             ],
             "afterMarkdowns": [
-              "A straight line, every commit kept, zero merge commits. The tidiest history of all -- at the cost of rewriting your branch's commit hashes."
+              "A straight line, every commit kept, zero merge commits. The tidiest history of all, at the cost of rewriting your branch's commit hashes."
             ],
             "command": "git rebase main feature; git switch main; git merge feature",
             "beforeCommand": "git switch -c feature; git commit; git commit; git switch main; git commit"
@@ -68,7 +68,7 @@ exports.level = {
           "type": "ModalAlert",
           "options": {
             "markdowns": [
-              "Three buttons, three shapes of history -- there's no single right answer, just team preference. :D",
+              "Three buttons, three shapes of history. There's no single right answer, just team preference. :D",
               "",
               "For this level, let's practice the **squash** merge. Your `feature` branch has a couple of scrappy commits; collapse them onto `main` as one clean commit.",
               "",

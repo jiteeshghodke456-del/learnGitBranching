@@ -7,7 +7,7 @@ exports.level = {
     "en_US": "When Merges Collide"
   },
   "hint": {
-    "en_US": "`git merge feature` conflicts -- then `git add app.js` to mark it resolved and `git merge --continue` to finish (or `git merge --abort` to bail out)."
+    "en_US": "`git merge feature` conflicts, then `git add app.js` to mark it resolved and `git merge --continue` to finish (or `git merge --abort` to bail out)."
   },
   "startDialog": {
     "en_US": {
@@ -18,7 +18,7 @@ exports.level = {
             "markdowns": [
               "## When Merges Collide",
               "",
-              "Most merges just work. But when two branches change **the same lines** of the same file, git can't decide who's right -- so it stops and asks *you*. That's a merge conflict. It's not an error; it's git being careful."
+              "Most merges just work. But when two branches change **the same lines** of the same file, git can't decide who's right, so it stops and asks *you*. That's a merge conflict. It's not an error; it's git being careful."
             ]
           }
         },
@@ -51,7 +51,7 @@ exports.level = {
               "",
               "Everything above `=======` is your side (`HEAD`); everything below is theirs (`feature`). To resolve, you edit the file down to the version you want, delete the markers, and save.",
               "",
-              "*(Our simulator can't show real file contents, so it just tracks that `app.js` is conflicted -- but the workflow is exactly the real thing.)*"
+              "*(Our simulator can't show real file contents, so it just tracks that `app.js` is conflicted, but the workflow is exactly the real thing.)*"
             ]
           }
         },
@@ -76,9 +76,9 @@ exports.level = {
             "markdowns": [
               "Your turn! Merging `feature` into `main` will collide on `app.js`. Resolve it and complete the merge:",
               "",
-              "* `git merge feature` -- this one conflicts",
-              "* `git add app.js` -- mark it resolved",
-              "* `git merge --continue` -- seal the merge commit"
+              "* `git merge feature`: this one conflicts",
+              "* `git add app.js`: mark it resolved",
+              "* `git merge --continue`: seal the merge commit"
             ]
           }
         }

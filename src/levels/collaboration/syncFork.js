@@ -15,11 +15,11 @@ exports.level = {
           "type": "ModalAlert",
           "options": {
             "markdowns": [
-              "## Keeping Your Work in Sync",
+              "## Keeping Your Fork in Sync",
               "",
               "Here's the most common team hiccup: you branch off, do great work... and meanwhile everyone else keeps shipping to the shared repo. By the time you're ready to open your Pull Request, `main` has moved on without you.",
               "",
-              "On GitHub this shared repo is often your **upstream**, and your personal copy is your **fork** -- but the sync dance is the same either way: grab what's new, replay your work on top, and share it.",
+              "On GitHub this shared repo is often your **upstream**, and your personal copy is your **fork**, but the sync dance is the same either way: grab what's new, replay your work on top, and share it.",
               "",
               "Right now your `o/main` is stale and your commit sits on an old base. If you `git push` like this, git will reject it."
             ]
@@ -42,7 +42,7 @@ exports.level = {
           "type": "ModalAlert",
           "options": {
             "markdowns": [
-              "That three-step catch-up is so common that `git pull --rebase` is shorthand for the fetch-and-rebase part -- handy once the steps feel natural.",
+              "That three-step catch-up is so common that `git pull --rebase` is shorthand for the fetch-and-rebase part, handy once the steps feel natural.",
               "",
               "To finish this level, sync your work with the remote and share it:",
               "",

@@ -6,7 +6,7 @@ exports.level = {
     "en_US": "The Staging Area"
   },
   "hint": {
-    "en_US": "Stage a file with `git add <file>`, then snapshot it with `git commit`. Do that twice -- once per file."
+    "en_US": "Stage a file with `git add <file>`, then snapshot it with `git commit`. Do that twice, once per file."
   },
   "startDialog": {
     "en_US": {
@@ -19,7 +19,7 @@ exports.level = {
               "",
               "Before a change becomes a commit, it makes a pit stop. Git has three zones: your **working directory** (where you edit), the **staging area** (a loading dock for the next commit), and the **repository** (your permanent history).",
               "",
-              "You pick *exactly* what rides along in each commit with `git add`. That's how commits stay tidy -- you're never forced to commit everything at once.",
+              "You pick *exactly* what rides along in each commit with `git add`. That's how commits stay tidy, and you're never forced to commit everything at once.",
               "",
               "*(Our simulator keeps this simple: it tracks which files changed, not their contents.)*"
             ]
@@ -39,7 +39,7 @@ exports.level = {
               "",
               "Stage a single file with `git add app.js`, or grab everything at once with `git add .`. Once a file is staged, `git commit` seals it into a snapshot.",
               "",
-              "Got files you never want to commit -- secrets, logs, build junk? List them in a `.gitignore` file and git will quietly leave them alone."
+              "Got files you never want to commit, like secrets, logs, or build junk? List them in a `.gitignore` file and git will quietly leave them alone."
             ]
           }
         },
