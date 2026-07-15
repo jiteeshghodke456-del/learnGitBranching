@@ -1,0 +1,392 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Staging Area — LGB design proposal</title></head><body>
+<style>
+  :root {
+    --bg: #eef3f9;
+    --surface: #ffffff;
+    --surface-2: #f4f8fc;
+    --ink: #17222e;
+    --ink-soft: #566579;
+    --line: #d9e2ee;
+    --accent: #1f7ac0;
+
+    /* real LGB values pulled from the codebase */
+    --lgb-canvas: #5cbcfc;
+    --commit-fill: #47b3b3;   /* GRAPHICS.defaultNodeFill hsba(0.5,0.6,0.7,1) */
+    --commit-ink: #0c2b2b;
+    --main-fill: #00ff7f;     /* BRANCH_NAME_COLOR_MAP.main */
+    --main-ink: #0a3d24;
+    --head-fill: #7278ff;     /* GRAPHICS.headRectFill */
+    --edge: rgba(12, 32, 44, 0.32);
+
+    --modified: #d97f1e;
+    --modified-bg: rgba(230, 146, 43, 0.18);
+    --staged: #1f9a5f;
+    --staged-bg: rgba(39, 165, 103, 0.18);
+    --conflict: #d5493d;
+
+    --mono: 'Menlo', 'Monaco', 'Consolas', 'Droid Sans Mono', monospace;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(18, 32, 46, 0.06), 0 12px 34px rgba(18, 32, 46, 0.10);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1622; --surface: #16202e; --surface-2: #1b2836; --ink: #e5edf7;
+      --ink-soft: #92a4b8; --line: #263749; --accent: #5fb2ee;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #eef3f9; --surface: #ffffff; --surface-2: #f4f8fc; --ink: #17222e;
+    --ink-soft: #566579; --line: #d9e2ee; --accent: #1f7ac0;
+    --shadow: 0 1px 2px rgba(18,32,46,.06), 0 12px 34px rgba(18,32,46,.10);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1622; --surface: #16202e; --surface-2: #1b2836; --ink: #e5edf7;
+    --ink-soft: #92a4b8; --line: #263749; --accent: #5fb2ee;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.45);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: clamp(28px,5vw,64px) clamp(18px,4vw,32px) 72px; }
+
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
+  .eyebrow::before { content: ""; width: 26px; height: 2px; background: var(--accent); border-radius: 2px; }
+  h1 { font-size: clamp(28px,5vw,42px); line-height: 1.08; letter-spacing: -.02em; margin: 0 0 16px; text-wrap: balance; }
+  .lede { font-size: clamp(16px,2.2vw,18px); color: var(--ink-soft); margin: 0 0 8px; max-width: 62ch; }
+  .lede b { color: var(--ink); font-weight: 600; }
+  h2 { font-size: 21px; letter-spacing: -.01em; margin: 48px 0 12px; }
+  p { max-width: 64ch; }
+  code { font-family: var(--mono); font-size: .88em; background: color-mix(in srgb, var(--accent) 12%, transparent); padding: 1px 5px; border-radius: 5px; }
+
+  .screenWrap { overflow-x: auto; margin: 26px 0 0; }
+  .screen { width: 760px; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--line); background: var(--surface); }
+
+  .titlebar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 12.5px; color: var(--ink-soft); }
+  .dots { display: flex; gap: 6px; margin-right: 6px; }
+  .dots i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .dots i:nth-child(1){ background:#ff5f57;} .dots i:nth-child(2){ background:#febc2e;} .dots i:nth-child(3){ background:#28c840;}
+  .titlebar .badge { margin-left: auto; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); border-radius: 999px; padding: 3px 9px; }
+
+  .canvas { position: relative; height: 410px; background: var(--lgb-canvas); color: var(--commit-ink); overflow: hidden; }
+  .canvas svg.edges { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+  .node {
+    position: absolute; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%;
+    background: var(--commit-fill); border: 2px solid #fff;
+    display: grid; place-items: center;
+    font-family: var(--mono); font-weight: 700; font-size: 12px; color: var(--commit-ink);
+    box-shadow: 0 3px 8px rgba(9,40,66,.30);
+    transition: transform .45s cubic-bezier(.26,.86,.44,.985), opacity .45s ease;
+  }
+  .node.pop { animation: pop .5s cubic-bezier(.26,1.3,.5,1) both; }
+  @keyframes pop { from { transform: scale(0);} 60% { transform: scale(1.15);} to { transform: scale(1);} }
+
+  .ref {
+    position: absolute; transform: translate(0, -50%);
+    font-family: var(--mono); font-size: 11.5px; font-weight: 700;
+    padding: 4px 9px; border-radius: 7px; white-space: nowrap;
+    border: 3px solid #fff; box-shadow: 0 2px 6px rgba(9,40,66,.28);
+    transition: top .45s cubic-bezier(.26,.86,.44,.985), left .45s cubic-bezier(.26,.86,.44,.985);
+  }
+  .ref.branch { background: var(--main-fill); color: var(--main-ink); }
+  .ref.head { background: var(--head-fill); color: #fff; }
+
+  .stage {
+    position: absolute; right: 22px; top: 50%; transform: translateY(-50%);
+    width: 350px;
+    background: rgba(255,255,255,.92); border: 1px solid rgba(9,40,66,.16);
+    border-radius: 12px; padding: 13px 14px 15px; backdrop-filter: blur(3px);
+    box-shadow: 0 8px 22px rgba(9,40,66,.22);
+  }
+  .stage h4 { margin: 0 0 10px; font-family: var(--mono); font-size: 12px; color: #26404f; font-weight: 700; letter-spacing: .02em; }
+  .zone + .zone { margin-top: 11px; }
+  .zone-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: #3d5163; display: flex; align-items: center; gap: 7px; margin-bottom: 7px; }
+  .zone-label .swatch { width: 9px; height: 9px; border-radius: 2px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; min-height: 30px; align-content: flex-start; }
+  .chip {
+    font-family: var(--mono); font-size: 12px; padding: 5px 9px; border-radius: 7px; border: 1px solid;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: transform .4s cubic-bezier(.26,.86,.44,.985), opacity .35s ease;
+  }
+  .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; }
+  .chip.modified { color:#8a5210; background: var(--modified-bg); border-color: color-mix(in srgb, var(--modified) 55%, transparent); }
+  .chip.modified::before { background: var(--modified); }
+  .chip.staged { color:#0f6b41; background: var(--staged-bg); border-color: color-mix(in srgb, var(--staged) 55%, transparent); }
+  .chip.staged::before { background: var(--staged); }
+  .empty-note { font-family: var(--mono); font-size: 11.5px; color:#6a7c8c; font-style: italic; }
+
+  .flyer {
+    position: absolute; font-family: var(--mono); font-size: 12px; padding: 5px 9px; border-radius: 7px;
+    color:#0f6b41; background: var(--staged-bg); border: 1px solid color-mix(in srgb, var(--staged) 55%, transparent);
+    z-index: 5; transition: transform .55s cubic-bezier(.5,.02,.4,1), opacity .55s ease; pointer-events: none; white-space: nowrap;
+  }
+
+  .console { background:#0f2230; border-top: 1px solid rgba(255,255,255,.06); padding: 12px 14px 14px; font-family: var(--mono); }
+  .termline { color:#8fd8ff; font-size: 13px; min-height: 20px; margin-bottom: 10px; word-break: break-word; }
+  .termline .out { color:#c6d3de; } .termline .muted { color:#6f8496; }
+  .steps { display: flex; flex-wrap: wrap; gap: 8px; }
+  .steps button { font-family: var(--mono); font-size: 12.5px; color:#dce9f4; background:#213c4c; border: 1px solid #35566855; border-radius: 8px; padding: 7px 11px; cursor: pointer; transition: background .15s ease, transform .05s ease; }
+  .steps button:hover:not(:disabled) { background:#2b4a5d; }
+  .steps button:active:not(:disabled) { transform: translateY(1px); }
+  .steps button:disabled { opacity:.4; cursor: default; }
+  .steps button.primary { background: var(--accent); border-color: transparent; color:#fff; }
+  .steps button.primary:hover:not(:disabled){ filter: brightness(1.08); }
+  .steps button.ghost { background: transparent; }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 20px; margin: 18px 0 0; padding: 0; list-style: none; }
+  .legend li { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-soft); }
+  .legend .swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid rgba(0,0,0,.12); }
+
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+  @media (max-width: 620px){ .cards { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--line); border-radius: 12px; padding: 16px 17px; background: var(--surface); }
+  .card h3 { margin: 0 0 6px; font-size: 15px; }
+  .card p { margin: 0; font-size: 14px; color: var(--ink-soft); }
+  .card .tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 4px; }
+
+  .note { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-soft); font-family: var(--mono); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition-duration: .001ms !important; animation-duration: .001ms !important; } }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Design proposal &middot; Learn Git Branching</p>
+  <h1>Making the staging area something you can see</h1>
+  <p class="lede">Staging currently lives only in the terminal text. This draws the <b>working directory</b> and <b>staging area</b> right on the canvas, so <code>git add</code> visibly moves a file into staging and <b>a commit bundles the staged files up into a new circle</b>.</p>
+  <p class="lede" style="font-size:15px;">Colors, node size, labels and font are pulled straight from LGB's code (teal nodes, spring-green <code>main</code>, blue-purple <code>HEAD</code>, Menlo). Click through the flow, or hit play.</p>
+
+  <div class="screenWrap">
+    <div class="screen" role="group" aria-label="Interactive staging-area mockup">
+      <div class="titlebar">
+        <span class="dots"><i></i><i></i><i></i></span>
+        Learn Git Branching &mdash; The Staging Area
+        <span class="badge">mockup</span>
+      </div>
+
+      <div class="canvas" id="canvas">
+        <svg class="edges" id="edges" viewBox="0 0 760 410" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <!-- nodes / refs / flyers injected here -->
+        <div class="stage" aria-hidden="false">
+          <h4>your repository</h4>
+          <div class="zone">
+            <div class="zone-label"><span class="swatch" style="background:var(--modified)"></span> working directory</div>
+            <div class="chips" id="workingChips"></div>
+          </div>
+          <div class="zone">
+            <div class="zone-label"><span class="swatch" style="background:var(--staged)"></span> staging area</div>
+            <div class="chips" id="stagedChips"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="console">
+        <div class="termline" id="term"><span class="muted">$ ready &mdash; try "git status"</span></div>
+        <div class="steps">
+          <button data-act="status">git status</button>
+          <button data-act="add-app">git add app.js</button>
+          <button data-act="add-styles">git add styles.css</button>
+          <button data-act="commit" class="primary">git commit</button>
+          <button data-act="play" class="ghost">▶ play the flow</button>
+          <button data-act="reset" class="ghost">reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="legend" aria-label="What the colors mean">
+    <li><span class="swatch" style="background:var(--modified)"></span> modified (unstaged)</li>
+    <li><span class="swatch" style="background:var(--staged)"></span> staged, ready to commit</li>
+    <li><span class="swatch" style="background:var(--conflict)"></span> conflicted (needs resolving)</li>
+  </ul>
+
+  <h2>How it reads</h2>
+  <p>The rules stay simple and stay out of the way of the commit graph, which is still the star:</p>
+  <div class="cards">
+    <div class="card">
+      <p class="tag">git add</p>
+      <h3>A file slides into staging</h3>
+      <p>Editing a file drops an amber chip into the working directory. <code>git add</code> moves it up into the staging area and turns it green.</p>
+    </div>
+    <div class="card">
+      <p class="tag">git commit</p>
+      <h3>Staged files bundle into a circle</h3>
+      <p>On commit, the green chips fly over and collapse into a brand new commit node. The mental model made literal: a commit is a bundle of staged changes.</p>
+    </div>
+    <div class="card">
+      <p class="tag">git restore</p>
+      <h3>And back out again</h3>
+      <p><code>git restore --staged</code> drops a chip back to the working directory; <code>git restore</code> discards it. The panel only shows on levels that teach staging, so every existing level is untouched.</p>
+    </div>
+    <div class="card">
+      <p class="tag">phase 2</p>
+      <h3>A conflict editor</h3>
+      <p>Same idea for merge conflicts: a small in-app panel showing the <code>&lt;&lt;&lt; / === / &gt;&gt;&gt;</code> hunk with "keep ours / keep theirs / keep both", so people practice resolving instead of just reading markers.</p>
+    </div>
+  </div>
+
+  <p class="note">Mockup for discussion only &mdash; positions, sizing and timing are all still up for grabs. Not affiliated with the real learngitbranching.js.org site.</p>
+</div>
+
+<script>
+  (function () {
+    var canvas = document.getElementById('canvas');
+    var edges = document.getElementById('edges');
+    var term = document.getElementById('term');
+    var workingChips = document.getElementById('workingChips');
+    var stagedChips = document.getElementById('stagedChips');
+
+    // vertical, bottom-up layout like real LGB
+    var COL_X = 150, BASE_Y = 340, GAP = 112;
+
+    var state;
+    function initial() {
+      return {
+        commits: [
+          { id: 'C0', x: COL_X, y: BASE_Y },
+          { id: 'C1', x: COL_X, y: BASE_Y - GAP }
+        ],
+        counter: 1,
+        files: [ { name: 'app.js', staged: false }, { name: 'styles.css', staged: false } ],
+        busy: false
+      };
+    }
+
+    function render() {
+      var lines = '';
+      for (var i = 1; i < state.commits.length; i++) {
+        var a = state.commits[i - 1], b = state.commits[i];
+        lines += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" stroke="rgba(12,32,44,0.32)" stroke-width="3" />';
+      }
+      edges.innerHTML = lines;
+
+      canvas.querySelectorAll('.node, .ref').forEach(function (n) { n.remove(); });
+      var latest = state.commits[state.commits.length - 1];
+      state.commits.forEach(function (c) {
+        var el = document.createElement('div');
+        el.className = 'node' + (c._new ? ' pop' : '');
+        el.style.left = c.x + 'px'; el.style.top = c.y + 'px';
+        el.textContent = c.id;
+        canvas.appendChild(el);
+        c._new = false;
+      });
+      // main + HEAD stacked to the right of the latest commit
+      var branch = document.createElement('div');
+      branch.className = 'ref branch';
+      branch.style.left = (latest.x + 30) + 'px'; branch.style.top = (latest.y - 11) + 'px';
+      branch.textContent = 'main';
+      canvas.appendChild(branch);
+      var head = document.createElement('div');
+      head.className = 'ref head';
+      head.style.left = (latest.x + 30) + 'px'; head.style.top = (latest.y + 13) + 'px';
+      head.textContent = 'HEAD';
+      canvas.appendChild(head);
+
+      renderChips();
+    }
+
+    function renderChips() {
+      workingChips.innerHTML = ''; stagedChips.innerHTML = '';
+      var working = state.files.filter(function (f) { return !f.staged; });
+      var staged = state.files.filter(function (f) { return f.staged; });
+      working.forEach(function (f) { var c = document.createElement('span'); c.className = 'chip modified'; c.textContent = f.name; workingChips.appendChild(c); });
+      if (!working.length) workingChips.innerHTML = '<span class="empty-note">clean</span>';
+      staged.forEach(function (f) { var c = document.createElement('span'); c.className = 'chip staged'; c.textContent = f.name; stagedChips.appendChild(c); });
+      if (!staged.length) stagedChips.innerHTML = '<span class="empty-note">nothing staged</span>';
+    }
+
+    function setTerm(cmd, out, muted) {
+      var html = '';
+      if (muted) { term.innerHTML = '<span class="muted">' + muted + '</span>'; return; }
+      if (cmd) html += '$ ' + cmd;
+      if (out) html += '<br><span class="out">' + out + '</span>';
+      term.innerHTML = html || '&nbsp;';
+    }
+
+    function doStatus() {
+      var working = state.files.filter(function (f) { return !f.staged; });
+      var staged = state.files.filter(function (f) { return f.staged; });
+      var out = '';
+      if (staged.length) out += 'Changes to be committed: ' + staged.map(function (f){return f.name;}).join(', ') + '. ';
+      if (working.length) out += 'Not staged: ' + working.map(function (f){return f.name;}).join(', ') + '.';
+      if (!out) out = 'nothing to commit, working tree clean';
+      setTerm('git status', out);
+    }
+
+    function doAdd(name) {
+      var f = state.files.find(function (x) { return x.name === name; });
+      if (!f || f.staged) { setTerm('git add ' + name, 'already staged'); return; }
+      f.staged = true; setTerm('git add ' + name, name + ' staged'); renderChips();
+    }
+
+    function doCommit() {
+      var staged = state.files.filter(function (f) { return f.staged; });
+      if (!staged.length) { setTerm('git commit', 'nothing staged &mdash; use git add first'); return; }
+      if (state.busy) return;
+      state.busy = true;
+
+      var latest = state.commits[state.commits.length - 1];
+      var nc = { id: 'C' + (++state.counter), x: COL_X, y: latest.y - GAP };
+
+      var chipEls = Array.prototype.slice.call(stagedChips.querySelectorAll('.chip'));
+      var canvasRect = canvas.getBoundingClientRect();
+      var sx = 760 / canvasRect.width, sy = 410 / canvasRect.height;
+
+      chipEls.forEach(function (chip, i) {
+        var r = chip.getBoundingClientRect();
+        var startX = (r.left - canvasRect.left) * sx, startY = (r.top - canvasRect.top) * sy;
+        var flyer = document.createElement('div');
+        flyer.className = 'flyer'; flyer.textContent = chip.textContent;
+        flyer.style.left = startX + 'px'; flyer.style.top = startY + 'px';
+        canvas.appendChild(flyer);
+        requestAnimationFrame(function () { requestAnimationFrame(function () {
+          flyer.style.transform = 'translate(' + (nc.x - startX - 20) + 'px,' + (nc.y - startY - 8) + 'px) scale(.32)';
+          flyer.style.opacity = '0';
+        }); });
+        setTimeout(function () { flyer.remove(); }, 640 + i * 20);
+      });
+
+      setTerm('git commit', 'bundling ' + staged.length + ' file' + (staged.length > 1 ? 's' : '') + ' into ' + nc.id + '…');
+      stagedChips.style.opacity = '.25';
+
+      setTimeout(function () {
+        state.files = state.files.filter(function (f) { return !f.staged; });
+        nc._new = true; state.commits.push(nc); render();
+        stagedChips.style.opacity = '1';
+        setTerm('git commit', '[main ' + nc.id + '] created &mdash; working tree clean');
+        state.busy = false;
+      }, 560);
+    }
+
+    var playTimers = [];
+    function clearPlay() { playTimers.forEach(clearTimeout); playTimers = []; }
+    function play() {
+      reset();
+      [[300, doStatus], [1100, function(){doAdd('app.js');}], [1900, function(){doAdd('styles.css');}], [2700, doStatus], [3500, doCommit]]
+        .forEach(function (s) { playTimers.push(setTimeout(s[1], s[0])); });
+    }
+    function reset() {
+      clearPlay(); state = initial(); stagedChips.style.opacity = '1';
+      canvas.querySelectorAll('.flyer').forEach(function (n) { n.remove(); });
+      render(); setTerm(null, null, '$ ready — try "git status"');
+    }
+
+    document.querySelector('.steps').addEventListener('click', function (e) {
+      var btn = e.target.closest('button'); if (!btn) return;
+      var act = btn.dataset.act;
+      if (act === 'status') doStatus();
+      else if (act === 'add-app') doAdd('app.js');
+      else if (act === 'add-styles') doAdd('styles.css');
+      else if (act === 'commit') doCommit();
+      else if (act === 'play') play();
+      else if (act === 'reset') reset();
+    });
+
+    reset();
+  })();
+</script>
+</body></html>
